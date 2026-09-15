@@ -5,10 +5,6 @@ Handles graph conversion and position scaling for Pulser device.
 
 import numpy as np
 
-# ============================================================================
-# FUNZIONI PER FEATURE ANGOLARI
-# ============================================================================
-
 def compute_angle_between_vectors(v1, v2):
     """
     Compute the angle between two vectors (0 to π).
@@ -56,15 +52,15 @@ def get_angle_features(graph, positions):
     
     Rules:
     - 1 edge: [π, 0] (max deviation, zero direction)
-    - 2 edges: [deviation, direction] where direction = angle of half-angle vector (0 to π)
+    - 2 edges: [deviation, direction] where direction = angle of half-angle vector (0 to pi)
     - 3 edges: take the pair with largest ANGLE (not deviation), compute deviation + direction
     - 4 edges: take the 2 pairs with largest ANGLES, sum their deviations and directions
     - 5+ edges: take the 3 pairs with largest ANGLES, sum their deviations and directions
     
     Returns:
         dict: node -> [deviation, direction] where:
-            deviation: sum of |π - angle| for selected pairs (0 to n_pairs*π)
-            direction: circular mean of half-angle vectors (0 to π)
+            deviation: sum of |pi - angle| for selected pairs (0 to n_pairs*pi)
+            direction: circular mean of half-angle vectors (0 to pi)
     """
     node_features = {}
     edges_dict = graph.get_edge_dictionary()
@@ -83,7 +79,7 @@ def get_angle_features(graph, positions):
         neighbours = list(all_neighbours[node])
         n_neighbors = len(neighbours)
         
-        # Caso 1 edge o meno
+        
         if n_neighbors <= 1:
             node_features[node] = [np.pi * 0.90, 0.0]
             continue
@@ -161,7 +157,7 @@ def graph_to_node_list(orig_graph, orig_positions, rep_positions, features_type=
     - rep_positions: positions dict from transformed graph (for coordinates)
     - features_type: 
         "angle" -> [deviation, direction] (using orig_positions)
-        "pos" -> [x, y] as features (using rep_positions, normalized to [0, π])
+        "pos" -> [x, y] as features (using rep_positions, normalized to [0, pi])
         "angle+pos" -> [x, y, deviation, direction] (coordinates + angle features)
         None -> [1.0]
     
@@ -235,7 +231,7 @@ def graph_to_node_list(orig_graph, orig_positions, rep_positions, features_type=
             if y_norm < EPS:
                 y_norm = 0.0
             angle_vec = angle_feats.get(node, [np.pi, 0.0])
-            features[node] = [x_norm, y_norm] + angle_vec # Modifica solo angle_vec
+            features[node] = [x_norm, y_norm] + angle_vec 
             
     else:
         # Default: all nodes feature = 1
@@ -274,7 +270,7 @@ def compute_global_scale_factor(all_graphs_nodes, min_distance=4.1):
     """
     Compute a single scaling factor for all graphs based on global minimum distance.
     """
-    print("\n📐 Computing global scale factor for Pulser device...")
+    print("\n Computing global scale factor for Pulser device...")
     global_min = float('inf')
     total_pairs = 0
     
@@ -295,16 +291,16 @@ def compute_global_scale_factor(all_graphs_nodes, min_distance=4.1):
         if graph_idx % 100 == 0 and graph_idx > 0:
             print(f"    Processed {graph_idx} graphs...")
     
-    print(f"    Total pairs analyzed: {total_pairs}")
-    print(f"    Global minimum distance: {global_min:.6f}")
+    print(f" Total pairs analyzed: {total_pairs}")
+    print(f" Global minimum distance: {global_min:.6f}")
     
     if global_min >= min_distance:
-        print(f"    ✅ No scaling needed (min distance already >= {min_distance})")
+        print(f" No scaling needed (min distance already >= {min_distance})")
         return 1.0
     
     scale = min_distance / global_min
-    print(f"    Global scaling factor: {scale:.6f}")
-    print(f"    After scaling, min distance will be: {global_min * scale:.6f}")
+    print(f" Global scaling factor: {scale:.6f}")
+    print(f" After scaling, min distance will be: {global_min * scale:.6f}")
     
     return scale
 
@@ -345,10 +341,10 @@ def verify_scaling(graphs_list, name="Graphs"):
     
     if all_dists:
         print(f"\n{name} distance verification:")
-        print(f"    Min distance: {min(all_dists):.6f}")
-        print(f"    Max distance: {max(all_dists):.6f}")
-        print(f"    Mean distance: {np.mean(all_dists):.6f}")
-        print(f"    Std distance: {np.std(all_dists):.6f}")
+        print(f" Min distance: {min(all_dists):.6f}")
+        print(f" Max distance: {max(all_dists):.6f}")
+        print(f" Mean distance: {np.mean(all_dists):.6f}")
+        print(f" Std distance: {np.std(all_dists):.6f}")
 
 
 
