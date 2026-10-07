@@ -32,7 +32,7 @@ Clone the repository and recreate the Conda environment using the provided `envi
 
 ```bash
 # Clone the repository
-git clone [https://github.com/ManuP1406/QUANTUM_OCR_PUBLIC.git](https://github.com/ManuP1406/QUANTUM_OCR_PUBLIC.git)
+git clone https://github.com/ManuP1406/QUANTUM_OCR_PUBLIC.git
 cd QUANTUM_OCR_PUBLIC
 
 # Create and activate the Conda environment
