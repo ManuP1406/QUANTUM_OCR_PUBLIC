@@ -84,23 +84,31 @@ def _pos_labels(pos_dict, grid_size=8):
     return out
 
 
-def _angle_labels_simple(G_nx, pos_dict, n_dev=4):
-    """Labels based on normalized degree (simple and robust)."""
-    if G_nx.number_of_nodes() == 0:
-        return {}
-    
-    degrees = [G_nx.degree(i) for i in range(G_nx.number_of_nodes())]
-    max_deg = max(degrees) if degrees else 1
-    
+def _angle_labels(G_nx, pos_dict, n_dev=4, n_dir=6):
+    dev_bins = np.linspace(0, np.pi, n_dev + 1)
     out = {}
-    for i, deg in enumerate(degrees):
-        # Robust normalization to avoid division by zero
-        if max_deg > 0:
-            bin_idx = int((deg / max_deg) * (n_dev - 1))
-        else:
-            bin_idx = 0
-        out[i] = max(0, min(bin_idx, n_dev - 1))
-    return out
+    for node in G_nx.nodes():
+        nbrs = list(G_nx.neighbors(node))
+        if len(nbrs) <= 1:
+            out[node] = 0
+            continue
+        angles = []
+        for i in range(len(nbrs)):
+            for j in range(i + 1, len(nbrs)):
+                p0 = np.array(pos_dict.get(node,      [0, 0]))
+                pi = np.array(pos_dict.get(nbrs[i],   [0, 0]))
+                pj = np.array(pos_dict.get(nbrs[j],   [0, 0]))
+                v1, v2 = pi - p0, pj - p0
+                n1, n2 = np.linalg.norm(v1), np.linalg.norm(v2)
+                if n1 < 1e-6 or n2 < 1e-6:
+                    continue
+                angles.append(np.arccos(np.clip(np.dot(v1/n1, v2/n2), -1, 1)))
+        if not angles:
+            out[node] = 0
+            continue
+        dev = abs(np.pi - max(angles))
+        out[node] = max(0, min(np.digitize(dev, dev_bins) - 1, n_dev - 1)) * n_dir
+    return out 
 
 
 def _build_grakel(G_nx, node_labels):
